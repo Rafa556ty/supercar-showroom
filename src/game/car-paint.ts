@@ -6,7 +6,6 @@ import { CAR_PARTS, effectiveColor, finishParams, type CarCustom, type CarPart }
 
 /** Material names per paintable part, as they appear in each car's GLB. */
 const NEVER = /$^/;
-const NONE: Record<CarPart, RegExp> = { body: NEVER, seats: NEVER, rims: NEVER, calipers: NEVER };
 export const PART_MATERIALS: Record<PlayerCar, Record<CarPart, RegExp>> = {
   revuelto: {
     body: /^Body$/,
@@ -20,8 +19,13 @@ export const PART_MATERIALS: Record<PlayerCar, Record<CarPart, RegExp>> = {
     rims: /^ChironMI_Rim1$/,
     calipers: /^Chironcaliper_B$/,
   },
-  // New models: paint parts not mapped yet, so they keep their factory look.
-  "huracan-evo": NONE, tourbillon: NONE, "utopia-roadster": NONE, huayra: NONE, demon: NONE,
+  "huracan-evo": { body: /PaintTNR_Material1$/, seats: /InteriorA_Material1$|^Interior_C1$/, rims: /TNR_Rim127A/, calipers: /CallipersCalliperGloss/ },
+  tourbillon: { body: /2026Paint_Material1$/, seats: /2026InteriorColourZoneA/, rims: /3DWheel1A_Material1$/, calipers: /CalliperA_Zone/ },
+  "utopia-roadster": { body: /2024Paint_Material1$/, seats: /InteriorColourZoneA/, rims: /3DWheel2A_Material1$/, calipers: /CalliperA_Zone|^utopiared_galiper$/ },
+  huayra: { body: /^PAG_HUAYRA_PAINT/, seats: /^PAG_HUAYRA_LEATHER$/, rims: /^pag_wheels_b$/, calipers: /^amdb11_caliper/ },
+  demon: { body: /^CARS$|^carpaint_second$/, seats: /^interior$/, rims: /^rim_second$/, calipers: NEVER },
+  "chiron-ss300": { body: /^CSR2_CarPaint$/, seats: /^CSR2_Interior$/, rims: /^CSR2_Wheel1A_Rim$/, calipers: /^CSR2_Calliper_Color$/ },
+  laferrari: { body: /Carpaint_Red1$/, seats: /^uv1Details_INT1$/, rims: /Wheel1A_Material1$/, calipers: /^Color_Caliper$/ },
 };
 
 export function partOfMaterial(car: PlayerCar, name: string): CarPart | null {

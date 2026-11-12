@@ -18,3 +18,13 @@ describe("wheelOmega", () => {
     expect(wheelOmega(100, false, 0)).toBeCloseTo(100 / 3.6 / 0.05, 5);
   });
 });
+
+import { MAX_STEER, steerAngle } from "./wheels";
+describe("steerAngle", () => {
+  it("turns front wheels right on right input and left on left input", () => {
+    expect(steerAngle(1)).toBeCloseTo(-MAX_STEER);
+    expect(steerAngle(-1)).toBeCloseTo(MAX_STEER);
+    expect(Math.abs(steerAngle(0))).toBe(0);
+    expect(steerAngle(5)).toBeCloseTo(-MAX_STEER);
+  });
+});

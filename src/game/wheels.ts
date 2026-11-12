@@ -9,3 +9,10 @@ export function wheelOmega(speedKmh: number, braking: boolean, radiusM: number):
   if (braking) return 0;
   return speedKmh / 3.6 / Math.max(0.05, radiusM);
 }
+
+/** Max front-wheel lock in radians (~28°). */
+export const MAX_STEER = 0.49;
+/** Front-wheel yaw for steering input -1 (left) .. 1 (right); car faces -Z, so right is negative yaw. */
+export function steerAngle(steer: number): number {
+  return -Math.max(-1, Math.min(1, steer)) * MAX_STEER;
+}
