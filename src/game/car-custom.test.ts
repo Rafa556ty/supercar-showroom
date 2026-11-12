@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_GARAGE_CUSTOM } from "./car-custom";
 import {
   effectiveColor, factoryCustom, loadCustom, PART_FINISHES, resetPart, saveCustom, setPartColor, setPartFinish,
 } from "./car-custom";
@@ -43,7 +44,7 @@ describe("garage customisation", () => {
   });
   it("each car remembers its own setup", () => {
     const store = memory();
-    const saved = { revuelto: setPartColor(factoryCustom(), "body", "#1546c8"), chiron: setPartFinish(factoryCustom(), "rims", "chrome") };
+    const saved = { ...DEFAULT_GARAGE_CUSTOM, revuelto: setPartColor(factoryCustom(), "body", "#1546c8"), chiron: setPartFinish(factoryCustom(), "rims", "chrome") };
     saveCustom(store, saved);
     const back = loadCustom(store);
     expect(back.revuelto.body.color).toBe("#1546c8");
