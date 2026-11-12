@@ -24,7 +24,7 @@ describe("steerAngle", () => {
   it("turns front wheels right on right input and left on left input", () => {
     expect(steerAngle(1)).toBeCloseTo(-MAX_STEER);
     expect(steerAngle(-1)).toBeCloseTo(MAX_STEER);
-    expect(steerAngle(0)).toBe(0);
+    expect(Math.abs(steerAngle(0))).toBe(0);
     expect(steerAngle(5)).toBeCloseTo(-MAX_STEER);
   });
 });
