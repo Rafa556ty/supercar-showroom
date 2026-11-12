@@ -46,3 +46,4 @@ use the editor.
 - New owner-supplied media uses CDN asset pointers; traffic-audio.ts owns distance-limited Web Audio voices driven by engine telemetry to keep per-frame audio outside React.
 - CarStore is an in-game DEMO overlay backed by a pure catalog; selections show the availability notice and never charge coins or unlock vehicles.
 - Playable Chiron's rear spoiler (nodes named SK_Spoiler) is split into an `active-wing` group by `splitBugattiWing`, driven by the same `stepAero` as the Revuelto; render3d keeps per-car wing base height/rise.
+- Playable cars, their brand and free-claim flag live in `src/game/player-cars.ts` (`PLAYABLE_CARS`, `FREE_CLAIMS_OPEN`); the store's brand tabs come from `src/game/brand-logos.ts`, so adding a car or ending the giveaway is a data change, not a UI change.
