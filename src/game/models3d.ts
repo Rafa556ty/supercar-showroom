@@ -19,6 +19,8 @@ import huracanAsset from "@/assets/models/2019_lamborghini_huracan_evo.glb.asset
 import tourbillonAsset from "@/assets/models/2026_bugatti_tourbillon.glb.asset.json";
 import utopiaAsset from "@/assets/models/2025_pagani_utopia_roadster.glb.asset.json";
 import huayraAsset from "@/assets/models/pagani_huayra_free.glb.asset.json";
+import chironSsAsset from "@/assets/models/bugatti_chiron_super_sport_300.glb.asset.json";
+import laferrariAsset from "@/assets/models/2014_ferrari_laferrari.glb.asset.json";
 import demonAsset from "@/assets/models/dodge_challenger_srt_demon_sdc.glb.asset.json";
 
 export type TrafficModelKey = "hatch" | "sedan" | "suv" | "pickup" | "bus" | "truck";
@@ -30,6 +32,8 @@ export type ModelKey =
   | "utopia-roadster"
   | "huayra"
   | "demon"
+  | "chiron-ss300"
+  | "laferrari"
   | "mustang"
   | "bmw"
   | "porsche"
@@ -53,6 +57,8 @@ export const MODEL_SPECS: Record<ModelKey, ModelSpec> = {
   "utopia-roadster": { url: utopiaAsset.url, length: 4.62, yaw: 0 },
   huayra: { url: huayraAsset.url, length: 4.6, yaw: 0 },
   demon: { url: demonAsset.url, length: 5.02, yaw: 0 },
+  "chiron-ss300": { url: chironSsAsset.url, length: 4.62, yaw: 0 },
+  laferrari: { url: laferrariAsset.url, length: 4.7, yaw: 0 },
   mustang: { url: mustangAsset.url, length: 4.8, yaw: 0 },
   bmw: { url: bmwAsset.url, length: 4.8, yaw: 0 },
   // User-supplied models, simplified + meshopt for traffic; both noses point +Z.
@@ -371,6 +377,14 @@ function paintBmw(root: THREE.Object3D) {
   });
 }
 
+/** Newer playable cars: wheels found by material name so they can spin and steer. */
+const NEW_CAR_KEYS = new Set<ModelKey>(["huracan-evo", "tourbillon", "utopia-roadster", "huayra", "demon", "chiron-ss300", "laferrari"]);
+export const NEW_CAR_WHEEL = /wheel|tire|tyre|rim|brakedis|brake\.|rotor/i;
+const isNewCarWheel = (o: THREE.Mesh) => {
+  const n = (o.material as THREE.Material).name;
+  return NEW_CAR_WHEEL.test(n) && !/call?iper|steering/i.test(n);
+};
+
 /** Static cars share one draw per compatible material, not one per tiny part. */
 function batchCar(root: THREE.Group, keep?: (o: THREE.Mesh) => boolean): THREE.Group {
   root.updateMatrixWorld(true);
@@ -460,6 +474,7 @@ function batchCar(root: THREE.Group, keep?: (o: THREE.Mesh) => boolean): THREE.G
         mesh.position.copy(center);
         mesh.castShadow = true;
         mesh.userData["wheel"] = true;
+        mesh.userData["front"] = center.z < zMid;
         mesh.userData["radius"] = Math.max(0.2, (wb.max.y - wb.min.y) / 2);
         extras.push(mesh);
       }
@@ -688,7 +703,9 @@ export function loadCar(key: ModelKey): Promise<THREE.Group> {
           normalizeCar(scene, spec),
           key === "revuelto"
             ? (o) => o.name.startsWith("Wheel_") && !o.name.includes("Caliper")
-            : undefined,
+            : NEW_CAR_KEYS.has(key)
+              ? isNewCarWheel
+              : undefined,
         );
         if (key === "revuelto") isolateActiveWing(result);
         return result;

@@ -30,7 +30,7 @@ import {
   TRAFFIC_WING_TILT,
   type AeroState,
 } from "./aero";
-import { wheelOmega } from "./wheels";
+import { steerAngle, wheelOmega } from "./wheels";
 import { AdaptiveResolution, phoneProfile } from "./quality";
 import {
   BRIDGES,
@@ -380,7 +380,7 @@ export class Scene3D {
   private playerTail: THREE.MeshStandardMaterial[] = [];
   private playerHead: THREE.MeshStandardMaterial[] = [];
   private playerBrakeOnly: THREE.MeshStandardMaterial[] = [];
-  private playerWheels: { mesh: THREE.Mesh; radius: number }[] = [];
+  private playerWheels: { mesh: THREE.Mesh; radius: number; front?: boolean }[] = [];
   private body: BodyMotion = initialBodyMotion();
   private engineBrakeLight: THREE.Mesh | null = null;
   private rimWarm = new THREE.DirectionalLight(0xffb347, 1.5);
@@ -1101,7 +1101,8 @@ export class Scene3D {
     car.traverse((o) => {
       const m = o as THREE.Mesh;
       if (m.isMesh && m.userData["wheel"]) {
-        this.playerWheels.push({ mesh: m, radius: m.userData["radius"] || 0.34 });
+        m.rotation.order = "YXZ"; // steer around the upright, spin around the axle
+        this.playerWheels.push({ mesh: m, radius: m.userData["radius"] || 0.34, front: m.userData["front"] === true || /_[LR]F$/.test(m.name) });
       }
     });
 
@@ -1428,6 +1429,7 @@ export class Scene3D {
       // Wheels spin with road speed and lock dead while braking (skid).
       for (const w of this.playerWheels) {
         w.mesh.rotation.x -= wheelOmega(s.player.speed, s.braking, w.radius) * dt;
+        if (w.front) w.mesh.rotation.y = steerAngle(s.steer ?? 0);
       }
       if (import.meta.env.DEV && this.playerWheels.length) {
         this.canvas.dataset["wheelRot"] = this.playerWheels[0]!.mesh.rotation.x.toFixed(3);

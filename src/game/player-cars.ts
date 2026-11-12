@@ -1,5 +1,5 @@
 // Playable cars, which ones can be claimed for free, and the saved garage.
-export type PlayerCar = 'revuelto' | 'chiron' | 'huracan-evo' | 'tourbillon' | 'utopia-roadster' | 'huayra' | 'demon';
+export type PlayerCar = 'revuelto' | 'chiron' | 'huracan-evo' | 'tourbillon' | 'utopia-roadster' | 'huayra' | 'demon' | 'chiron-ss300' | 'laferrari';
 export type Brand = 'lamborghini' | 'ferrari' | 'bugatti' | 'koenigsegg' | 'pagani' | 'dodge';
 
 export type PlayableSpec = {
@@ -15,7 +15,9 @@ export type PlayableSpec = {
 export const PLAYABLE_CARS: PlayableSpec[] = [
   { id: 'revuelto', name: 'Lamborghini Revuelto', brand: 'lamborghini', freeClaim: false, sound: 'revuelto' },
   { id: 'huracan-evo', name: 'Lamborghini Huracán EVO 2019', brand: 'lamborghini', freeClaim: true, sound: 'revuelto' },
+  { id: 'laferrari', name: 'Ferrari LaFerrari 2014', brand: 'ferrari', freeClaim: true, sound: 'revuelto' },
   { id: 'chiron', name: 'Bugatti Chiron', brand: 'bugatti', freeClaim: true, sound: 'chiron' },
+  { id: 'chiron-ss300', name: 'Bugatti Chiron Super Sport 300+', brand: 'bugatti', freeClaim: true, sound: 'chiron' },
   { id: 'tourbillon', name: 'Bugatti Tourbillon 2026', brand: 'bugatti', freeClaim: true, sound: 'chiron' },
   { id: 'utopia-roadster', name: 'Pagani Utopia Roadster 2025', brand: 'pagani', freeClaim: true, sound: 'revuelto' },
   { id: 'huayra', name: 'Pagani Huayra', brand: 'pagani', freeClaim: true, sound: 'revuelto' },
