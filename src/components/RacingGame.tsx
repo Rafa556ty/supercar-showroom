@@ -44,7 +44,7 @@ import gameLogo from "@/assets/brand/supercar-highway-dash-logo.webp.asset.json"
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { GarageViewer } from "@/components/GarageViewer";
-import { DEFAULT_GARAGE, claimChiron, choosePlayerCar, loadGarage, saveGarage, type PlayerCar, type GarageState } from "@/game/player-cars";
+import { DEFAULT_GARAGE, claimCar, choosePlayerCar, isOwned, carSpec, loadGarage, saveGarage, type PlayerCar, type GarageState } from "@/game/player-cars";
 import { CarStore } from '@/components/CarStore';
 import { SpeedCluster } from '@/components/SpeedCluster';
 import { GameAudio } from "@/game/audio";
@@ -112,7 +112,7 @@ export function RacingGame() {
   const [garage, setGarage] = useState<GarageState>(DEFAULT_GARAGE);
   const [garageBusy, setGarageBusy] = useState(true);
   const [garageError, setGarageError] = useState("");
-  const [confirmChiron, setConfirmChiron] = useState(false);
+  const [confirmClaim, setConfirmClaim] = useState<PlayerCar | null>(null);
   const selectedCarRef = useRef<PlayerCar>("revuelto");
   useEffect(() => {
     let cancelled = false;
@@ -129,15 +129,15 @@ export function RacingGame() {
   }, []);
   const selectCar = async (car: PlayerCar, confirmed = false) => {
     if (garageBusy) return;
-    if (car === "chiron" && !garage.chironOwned && !confirmed) { setConfirmChiron(true); return; }
+    if (!isOwned(garage, car) && !confirmed) { setConfirmClaim(car); return; }
     setGarageBusy(true); setGarageError("");
     try {
-      const saved = confirmed ? claimChiron(garage, true) : choosePlayerCar(garage, car);
+      const saved = confirmed ? claimCar(garage, car, true) : choosePlayerCar(garage, car);
       saveGarage(localStorage, saved);
       await scene3dRef.current?.selectPlayerCar(saved.selectedCar);
       selectedCarRef.current = saved.selectedCar;
       audioRef.current?.setPlayerCar(saved.selectedCar);
-      setGarage(saved); setConfirmChiron(false);
+      setGarage(saved); setConfirmClaim(null);
     } catch (e) { setGarageError(e instanceof Error ? e.message : "Não foi possível salvar. Tente novamente."); }
     finally { setGarageBusy(false); }
   };
@@ -1169,7 +1169,7 @@ export function RacingGame() {
               close: t.close,
             }}
             selectedCar={garage.selectedCar}
-            chironOwned={garage.chironOwned}
+            owned={garage.owned}
             busy={garageBusy}
             onSelect={car => { void selectCar(car); }}
             onClose={() => { setShowGarage(false); scene3dRef.current?.refreshCarCustom(); }}
@@ -1282,20 +1282,20 @@ export function RacingGame() {
             </div>
           </div>
         )}
-        {garageError && (showGarage || showPoliceOff || confirmChiron) && <div role="alert" className="absolute inset-x-4 top-20 z-[70] border border-brake bg-card p-3 text-center text-sm text-brake">{garageError}</div>}
-        {confirmChiron && (
-          <div role="alertdialog" aria-modal="true" aria-label="Resgatar Bugatti Chiron" className="absolute inset-0 z-[60] flex items-center justify-center bg-scrim p-5">
+        {garageError && (showGarage || showPoliceOff || confirmClaim) && <div role="alert" className="absolute inset-x-4 top-20 z-[70] border border-brake bg-card p-3 text-center text-sm text-brake">{garageError}</div>}
+        {confirmClaim && (
+          <div role="alertdialog" aria-modal="true" aria-label={`Resgatar ${carSpec(confirmClaim).name}`} className="absolute inset-0 z-[60] flex items-center justify-center bg-scrim p-5">
             <div className="w-full max-w-sm rounded border border-primary/40 bg-card p-6 text-center">
               <Car className="mx-auto size-9 text-primary" />
-              <h3 className="mt-3 font-display text-3xl">RESGATAR BUGATTI CHIRON?</h3>
-              <p className="mt-3 text-sm text-muted-foreground">Você realmente quer resgatar a Chiron gratuitamente?</p>
-              <Button variant="race" disabled={garageBusy} className="mt-5 w-full" onClick={() => { void selectCar("chiron", true); }}>{garageBusy ? "RESGATANDO…" : "SIM, RESGATAR"}</Button>
-              <Button variant="ghost" disabled={garageBusy} className="mt-2 w-full" onClick={() => setConfirmChiron(false)}>CANCELAR</Button>
+              <h3 className="mt-3 font-display text-3xl">RESGATAR {carSpec(confirmClaim).name.toUpperCase()}?</h3>
+              <p className="mt-3 text-sm text-muted-foreground">Você realmente quer resgatar esse carro gratuitamente? Promoção por tempo limitado.</p>
+              <Button variant="race" disabled={garageBusy} className="mt-5 w-full" onClick={() => { void selectCar(confirmClaim, true); }}>{garageBusy ? "RESGATANDO…" : "SIM, RESGATAR"}</Button>
+              <Button variant="ghost" disabled={garageBusy} className="mt-2 w-full" onClick={() => setConfirmClaim(null)}>CANCELAR</Button>
             </div>
           </div>
         )}
         {showPoliceOff && (
-          <CarStore chironOwned={garage.chironOwned} busy={garageBusy} onChiron={() => { void selectCar("chiron"); }} onClose={() => setShowPoliceOff(false)} />
+          <CarStore garage={garage} busy={garageBusy} onClaim={car => { void selectCar(car); }} onClose={() => setShowPoliceOff(false)} />
         )}
       </div>
     </main>

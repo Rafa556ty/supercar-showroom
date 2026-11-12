@@ -4,7 +4,8 @@ import type * as THREE from "three";
 import { X } from "lucide-react";
 import revueltoPhoto from "@/assets/revuelto.png";
 import chironPhoto from "@/assets/store/chiron-road.jpg.asset.json";
-import type { PlayerCar } from "@/game/player-cars";
+import { PLAYABLE_CARS, carSpec, type PlayerCar } from "@/game/player-cars";
+import { BRAND_LOGOS } from "@/game/brand-logos";
 import { Button } from "@/components/ui/button";
 import { CAR_PARTS, FINISH_LABELS, PALETTE, PART_FINISHES, PART_LABELS, loadCustom, resetPart, saveCustom, setPartColor, setPartFinish, DEFAULT_GARAGE_CUSTOM, type CarPart, type GarageCustom } from "@/game/car-custom";
 
@@ -16,7 +17,7 @@ export type GarageLabels = {
   close: string;
 };
 
-export function GarageViewer({ labels, onClose, selectedCar, chironOwned, onSelect, busy }: { labels: GarageLabels; onClose: () => void; selectedCar: PlayerCar; chironOwned: boolean; onSelect: (car: PlayerCar) => void; busy: boolean }) {
+export function GarageViewer({ labels, onClose, selectedCar, owned, onSelect, busy }: { labels: GarageLabels; onClose: () => void; selectedCar: PlayerCar; owned: PlayerCar[]; onSelect: (car: PlayerCar) => void; busy: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -295,7 +296,7 @@ export function GarageViewer({ labels, onClose, selectedCar, chironOwned, onSele
             {labels.title}
           </h2>
           <p className="mt-1 font-display text-[11px] tracking-[0.3em] text-muted-foreground">
-            {selectedCar === "chiron" ? "BUGATTI CHIRON" : "LAMBORGHINI REVUELTO"}
+            {carSpec(selectedCar).name.toUpperCase()}
           </p>
         </div>
         <Button
@@ -400,12 +401,12 @@ export function GarageViewer({ labels, onClose, selectedCar, chironOwned, onSele
       )}
       </div>
 
-      <div className="flex shrink-0 justify-center gap-3 border-t border-hud-border bg-hud px-3 py-3 phone-landscape:py-1.5">
-        {([{ id: 'revuelto' as const, name: 'Lamborghini Revuelto', image: revueltoPhoto }, { id: 'chiron' as const, name: 'Bugatti Chiron', image: chironPhoto.url }]).map(c => (
-          <Button key={c.id} variant="outline" disabled={busy} aria-pressed={selectedCar === c.id} aria-label={`Selecionar ${c.name}`} onClick={() => onSelect(c.id)} className={`h-auto w-40 max-w-[44%] flex-col gap-1 overflow-hidden p-0 pb-2 phone-landscape:py-1.5 ${selectedCar === c.id ? 'border-primary bg-primary/10' : 'border-hud-border bg-card'}`}>
-            <img src={c.image} alt={c.name} className="h-16 w-full object-cover phone-landscape:hidden" />
-            <span className="text-xs">{c.name}</span>
-            <span className="text-[10px] text-primary">{c.id === selectedCar ? 'SELECIONADO' : c.id === 'chiron' && !chironOwned ? 'RESGATAR GRÁTIS' : 'DISPONÍVEL'}</span>
+      <div className="flex shrink-0 justify-start gap-3 overflow-x-auto border-t border-hud-border bg-hud px-3 py-3 sm:justify-center phone-landscape:py-1.5" onPointerDown={e => e.stopPropagation()} onTouchMove={e => e.stopPropagation()}>
+        {PLAYABLE_CARS.filter(c => owned.includes(c.id)).map(c => ({ ...c, image: c.id === 'revuelto' ? revueltoPhoto : c.id === 'chiron' ? chironPhoto.url : null })).map(c => (
+          <Button key={c.id} variant="outline" disabled={busy} aria-pressed={selectedCar === c.id} aria-label={`Selecionar ${c.name}`} onClick={() => onSelect(c.id)} className={`h-auto w-40 shrink-0 flex-col gap-1 overflow-hidden whitespace-normal p-0 pb-2 phone-landscape:py-1.5 ${selectedCar === c.id ? 'border-primary bg-primary/10' : 'border-hud-border bg-card'}`}>
+            {c.image ? <img src={c.image} alt={c.name} className="h-16 w-full object-cover phone-landscape:hidden" /> : <img src={BRAND_LOGOS[c.brand]} alt="" className="h-16 w-full bg-secondary object-contain p-2 phone-landscape:hidden" />}
+            <span className="px-1 text-center text-xs">{c.name}</span>
+            <span className="text-[10px] text-primary">{c.id === selectedCar ? 'SELECIONADO' : 'DISPONÍVEL'}</span>
           </Button>
         ))}
       </div>
