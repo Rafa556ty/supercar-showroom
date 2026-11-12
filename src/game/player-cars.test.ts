@@ -19,7 +19,7 @@ describe('free claimable cars', () => {
     expect(choosePlayerCar(DEFAULT_GARAGE, 'huayra').selectedCar).toBe('revuelto');
   });
   it('every car belongs to a brand tab', () => {
-    expect(PLAYABLE_CARS.filter(c => c.brand === 'ferrari')).toHaveLength(0);
+    expect(PLAYABLE_CARS.filter(c => c.brand === 'ferrari').map(c => c.id)).toEqual(['laferrari']);
     expect(PLAYABLE_CARS.filter(c => c.brand === 'pagani').map(c => c.id)).toEqual(['utopia-roadster', 'huayra']);
   });
 });
