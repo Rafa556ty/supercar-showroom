@@ -1,5 +1,5 @@
 import { rpmIn, REDLINE } from "@/game/gearbox";
-import type { PlayerCar } from "@/game/player-cars";
+import { carSpec, type PlayerCar } from "@/game/player-cars";
 
 /** Arc helper: point on circle for angle in degrees (0 = right, clockwise). */
 const pt = (cx: number, cy: number, r: number, a: number) => {
@@ -72,7 +72,7 @@ function ChironCluster({ speed, gear }: { speed: number; gear: number }) {
 }
 
 export function SpeedCluster({ car, speed, gear }: { car: PlayerCar; speed: number; gear: number }) {
-  return car === "chiron" ? (
+  return carSpec(car).sound === "chiron" ? (
     <div className="h-32 w-32 sm:h-40 sm:w-40"><ChironCluster speed={speed} gear={gear} /></div>
   ) : (
     <div className="h-[6.5rem] w-44 sm:h-32 sm:w-56"><RevueltoCluster speed={speed} gear={gear} /></div>

@@ -1,6 +1,6 @@
 // Garage customisation rules (pure): which parts can be changed, the colour
 // palette, the finishes each part allows and how a choice is saved per car.
-import type { PlayerCar } from "./player-cars";
+import { PLAYABLE_CARS, type PlayerCar } from "./player-cars";
 
 export type CarPart = "body" | "seats" | "rims" | "calipers";
 export type Finish = "gloss" | "metallic" | "matte" | "chrome" | "carbon" | "leather" | "alcantara";
@@ -63,7 +63,8 @@ export const factoryCustom = (): CarCustom => ({
   rims: { ...FACTORY },
   calipers: { ...FACTORY },
 });
-export const DEFAULT_GARAGE_CUSTOM: GarageCustom = { revuelto: factoryCustom(), chiron: factoryCustom() };
+const allFactory = () => Object.fromEntries(PLAYABLE_CARS.map(c => [c.id, factoryCustom()])) as GarageCustom;
+export const DEFAULT_GARAGE_CUSTOM: GarageCustom = allFactory();
 
 const HEX = /^#[0-9a-f]{6}$/i;
 export const isFinishAllowed = (part: CarPart, finish: Finish) => PART_FINISHES[part].includes(finish);
@@ -119,9 +120,9 @@ function cleanCar(raw: unknown): CarCustom {
 export function loadCustom(store: KV): GarageCustom {
   try {
     const raw = JSON.parse(store.getItem(KEY) ?? "null");
-    return { revuelto: cleanCar(raw?.revuelto), chiron: cleanCar(raw?.chiron) };
+    return Object.fromEntries(PLAYABLE_CARS.map(c => [c.id, cleanCar(raw?.[c.id])])) as GarageCustom;
   } catch {
-    return { revuelto: factoryCustom(), chiron: factoryCustom() };
+    return allFactory();
   }
 }
 

@@ -20,6 +20,7 @@ import {
 import type { RenderSnapshot } from "./engine";
 import type { CarType } from "./traffic";
 import { loadCar, trimChironForTrack, type ModelKey } from "./models3d";
+import type { PlayerCar } from "./player-cars";
 import { FOOTPRINTS, TRAFFIC_DRAW_AHEAD } from "./traffic-rules";
 import { CAMERA_POSES, nextCameraView, type CameraView } from "./camera-views";
 import {
@@ -263,12 +264,12 @@ type Flame = {
 };
 
 export class Scene3D {
-  private playerKey: "revuelto" | "chiron" = "revuelto";
+  private playerKey: PlayerCar = "revuelto";
   private playerLoad = 0;
   private chironRig: ReturnType<typeof createTrafficLightRig> | null = null;
   private playerLocal = new THREE.Matrix4();
 
-  async selectPlayerCar(key: "revuelto" | "chiron") {
+  async selectPlayerCar(key: PlayerCar) {
     const request = ++this.playerLoad;
     const template = await loadCar(key);
     if (this.disposed || request !== this.playerLoad) return;
@@ -989,8 +990,8 @@ export class Scene3D {
     const brakeMesh = new THREE.Mesh(brakeGeo, brakeMat);
     brakeMesh.name = "engine-cowl-brake-strip";
     brakeMesh.visible = false;
-    car.add(brakeMesh);
-    this.engineBrakeLight = brakeMesh;
+    // The engine-cowl strip is shaped for the Revuelto only.
+    if (this.playerKey === "revuelto") { car.add(brakeMesh); this.engineBrakeLight = brakeMesh; }
     {
       const box = new THREE.Box3().setFromObject(car);
       const ws = findWindscreen(car, box);

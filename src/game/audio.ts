@@ -13,6 +13,7 @@ import idleWav from "@/assets/sounds/revuelto-idle.wav.asset.json";
 import revWav from "@/assets/sounds/revuelto-rev.wav.asset.json";
 import { TrafficAudio, type SoundCar } from './traffic-audio';
 
+import { carSpec, type PlayerCar } from "./player-cars";
 import chironSound from "@/assets/sounds/bugatti-engine.mp3.asset.json";
 
 const MASTER = 0.82;
@@ -40,7 +41,8 @@ export class GameAudio {
   private chironBuffer: AudioBuffer | null = null;
   private chironSource: AudioBufferSourceNode | null = null;
   private chironGain: GainNode | null = null;
-  setPlayerCar(car: "revuelto" | "chiron") {
+  setPlayerCar(id: PlayerCar) {
+    const car = carSpec(id).sound;
     this.playerCar = car;
     if (car === "revuelto" && this.ctx) this.chironGain?.gain.setTargetAtTime(0,this.ctx.currentTime,.1);
     if (car === "chiron" && this.ctx && !this.chironBuffer) void this.loadChiron(this.ctx);

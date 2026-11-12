@@ -5,6 +5,8 @@ import type { PlayerCar } from "./player-cars";
 import { CAR_PARTS, effectiveColor, finishParams, type CarCustom, type CarPart } from "./car-custom";
 
 /** Material names per paintable part, as they appear in each car's GLB. */
+const NEVER = /$^/;
+const NONE: Record<CarPart, RegExp> = { body: NEVER, seats: NEVER, rims: NEVER, calipers: NEVER };
 export const PART_MATERIALS: Record<PlayerCar, Record<CarPart, RegExp>> = {
   revuelto: {
     body: /^Body$/,
@@ -18,6 +20,8 @@ export const PART_MATERIALS: Record<PlayerCar, Record<CarPart, RegExp>> = {
     rims: /^ChironMI_Rim1$/,
     calipers: /^Chironcaliper_B$/,
   },
+  // New models: paint parts not mapped yet, so they keep their factory look.
+  "huracan-evo": NONE, tourbillon: NONE, "utopia-roadster": NONE, huayra: NONE, demon: NONE,
 };
 
 export function partOfMaterial(car: PlayerCar, name: string): CarPart | null {

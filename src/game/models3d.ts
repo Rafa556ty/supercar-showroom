@@ -15,11 +15,21 @@ import revueltoAsset from "@/assets/models/revuelto.glb.asset.json";
 import mustangAsset from "@/assets/models/mustang-gt-traffic.glb.asset.json";
 import chironPlayableAsset from "@/assets/models/chiron-playable.glb.asset.json";
 import bmwAsset from "@/assets/models/bmw-m4-traffic.glb.asset.json";
+import huracanAsset from "@/assets/models/2019_lamborghini_huracan_evo.glb.asset.json";
+import tourbillonAsset from "@/assets/models/2026_bugatti_tourbillon.glb.asset.json";
+import utopiaAsset from "@/assets/models/2025_pagani_utopia_roadster.glb.asset.json";
+import huayraAsset from "@/assets/models/pagani_huayra_free.glb.asset.json";
+import demonAsset from "@/assets/models/dodge_challenger_srt_demon_sdc.glb.asset.json";
 
 export type TrafficModelKey = "hatch" | "sedan" | "suv" | "pickup" | "bus" | "truck";
 export type ModelKey =
   | "chiron"
   | "revuelto"
+  | "huracan-evo"
+  | "tourbillon"
+  | "utopia-roadster"
+  | "huayra"
+  | "demon"
   | "mustang"
   | "bmw"
   | "porsche"
@@ -38,6 +48,11 @@ type ModelSpec = {
 export const MODEL_SPECS: Record<ModelKey, ModelSpec> = {
   chiron: { url: chironPlayableAsset.url, length: 4.54, yaw: Math.PI },
   revuelto: { url: revueltoAsset.url, length: 4.95, yaw: 0 },
+  "huracan-evo": { url: huracanAsset.url, length: 4.52, yaw: 0 },
+  tourbillon: { url: tourbillonAsset.url, length: 4.67, yaw: 0 },
+  "utopia-roadster": { url: utopiaAsset.url, length: 4.62, yaw: 0 },
+  huayra: { url: huayraAsset.url, length: 4.6, yaw: 0 },
+  demon: { url: demonAsset.url, length: 5.02, yaw: 0 },
   mustang: { url: mustangAsset.url, length: 4.8, yaw: 0 },
   bmw: { url: bmwAsset.url, length: 4.8, yaw: 0 },
   // User-supplied models, simplified + meshopt for traffic; both noses point +Z.
