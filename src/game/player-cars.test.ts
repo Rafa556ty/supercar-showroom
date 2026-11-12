@@ -1,29 +1,31 @@
 import { describe, it, expect } from 'vitest';
-import { DEFAULT_GARAGE, choosePlayerCar, claimChiron, needsChironConfirmation } from './player-cars';
-describe('Playable Chiron rules', () => {
-  it('asks only while Chiron is not owned', () => {
-    expect(needsChironConfirmation(DEFAULT_GARAGE)).toBe(true);
-    expect(needsChironConfirmation(claimChiron(DEFAULT_GARAGE, true))).toBe(false);
+import { DEFAULT_GARAGE, choosePlayerCar, claimCar, needsClaimConfirmation, canClaimFree, loadGarage, saveGarage, PLAYABLE_CARS } from './player-cars';
+describe('free claimable cars', () => {
+  it('Chiron and the five new cars are free to claim', () => {
+    for (const id of ['chiron', 'huracan-evo', 'tourbillon', 'utopia-roadster', 'huayra', 'demon'] as const)
+      expect(canClaimFree(DEFAULT_GARAGE, id)).toBe(true);
+  });
+  it('asks only while the car is not owned', () => {
+    expect(needsClaimConfirmation(DEFAULT_GARAGE, 'demon')).toBe(true);
+    expect(needsClaimConfirmation(claimCar(DEFAULT_GARAGE, 'demon', true), 'demon')).toBe(false);
   });
   it('does not unlock on cancellation', () => {
-    expect(claimChiron(DEFAULT_GARAGE, false)).toEqual({ chironOwned: false, selectedCar: 'revuelto' });
+    expect(claimCar(DEFAULT_GARAGE, 'chiron', false)).toEqual(DEFAULT_GARAGE);
   });
-  it('confirmation unlocks and selects Chiron', () => {
-    expect(claimChiron(DEFAULT_GARAGE, true)).toEqual({ chironOwned: true, selectedCar: 'chiron' });
+  it('confirmation unlocks and selects the car', () => {
+    expect(claimCar(DEFAULT_GARAGE, 'tourbillon', true)).toEqual({ owned: ['revuelto', 'tourbillon'], selectedCar: 'tourbillon' });
   });
-  it('cannot select Chiron before claiming', () => {
-    expect(choosePlayerCar(DEFAULT_GARAGE, 'chiron').selectedCar).toBe('revuelto');
+  it('cannot select a car before claiming', () => {
+    expect(choosePlayerCar(DEFAULT_GARAGE, 'huayra').selectedCar).toBe('revuelto');
   });
-  it('can return to Revuelto and select owned Chiron again', () => {
-    const owned = claimChiron(DEFAULT_GARAGE, true);
-    const back = choosePlayerCar(owned, 'revuelto');
-    expect(back).toEqual({ chironOwned: true, selectedCar: 'revuelto' });
-    expect(choosePlayerCar(back, 'chiron').selectedCar).toBe('chiron');
+  it('every car belongs to a brand tab', () => {
+    expect(PLAYABLE_CARS.filter(c => c.brand === 'ferrari')).toHaveLength(0);
+    expect(PLAYABLE_CARS.filter(c => c.brand === 'pagani').map(c => c.id)).toEqual(['utopia-roadster', 'huayra']);
   });
 });
-import { loadGarage as _load, saveGarage as _save } from './player-cars';
 describe('garage persistence', () => {
   const mem = () => { const m = new Map<string, string>(); return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => { m.set(k, v); } }; };
-  it('keeps the claimed Chiron selected after reload', () => { const s = mem(); _save(s, { chironOwned: true, selectedCar: 'chiron' }); expect(_load(s)).toEqual({ chironOwned: true, selectedCar: 'chiron' }); });
-  it('never selects an unclaimed Chiron', () => { const s = mem(); s.setItem('garage-state-v1', JSON.stringify({ chironOwned: false, selectedCar: 'chiron' })); expect(_load(s).selectedCar).toBe('revuelto'); });
+  it('keeps a claimed car selected after reload', () => { const s = mem(); saveGarage(s, claimCar(DEFAULT_GARAGE, 'demon', true)); expect(loadGarage(s)).toEqual({ owned: ['revuelto', 'demon'], selectedCar: 'demon' }); });
+  it('migrates the old Chiron save', () => { const s = mem(); s.setItem('garage-state-v1', JSON.stringify({ chironOwned: true, selectedCar: 'chiron' })); expect(loadGarage(s)).toEqual({ owned: ['revuelto', 'chiron'], selectedCar: 'chiron' }); });
+  it('never selects an unclaimed car', () => { const s = mem(); s.setItem('garage-state-v1', JSON.stringify({ chironOwned: false, selectedCar: 'chiron' })); expect(loadGarage(s).selectedCar).toBe('revuelto'); });
 });
