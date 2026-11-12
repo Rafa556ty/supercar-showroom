@@ -301,7 +301,7 @@ export class Scene3D {
     const rig = createTrafficLightRig("bugatti", car, 1, false);
     this.chironRig = rig;
     for (const part of rig.all) { part.count = part === rig.wipers ? 2 : 1; car.add(part); }
-    car.traverse(o => { if (o instanceof THREE.Mesh && o.userData["wheel"]) this.playerWheels.push({ mesh: o, radius: o.userData["radius"] || .34 }); });
+    car.traverse(o => { if (o instanceof THREE.Mesh && o.userData["wheel"]) { o.rotation.order = "YXZ"; this.playerWheels.push({ mesh: o, radius: o.userData["radius"] || .34, front: o.userData["front"] === true || /_[LR]F$/.test(o.name) }); } });
     this.headL.position.set(-.8,.7,-1.95); this.headR.position.set(.8,.7,-1.95);
     this.headL.target.position.set(-.9,0,-30); this.headR.target.position.set(.9,0,-30);
     if (!this.low) car.add(this.headL,this.headR,this.headL.target,this.headR.target);
